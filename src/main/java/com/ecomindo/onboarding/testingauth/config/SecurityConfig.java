@@ -4,10 +4,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -23,15 +25,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	UserDetailsService userDetailsService;
 
 	@Override
+    @Order(1)
+     public void configure(WebSecurity web) throws Exception {
+         web.ignoring().antMatchers("/auth/**");
+     }
+
+	@Override
+	@Order(2)
 	protected void configure(HttpSecurity http) throws Exception {
 		http = http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and();
 
-		http = http.exceptionHandling().authenticationEntryPoint((request, response, ex) -> {
-			System.out.println("Unauthorized request - " + ex.getMessage());
-			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, ex.getMessage());
-		}).and();
+        http = http.exceptionHandling().authenticationEntryPoint((request, response, ex) -> {
+            ex.printStackTrace();
+            System.out.println("Unauthorized request - " + ex.getMessage());
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, ex.getMessage());
+        }).and();
 
-		http.authorizeRequests().antMatchers("/auth/**").permitAll().anyRequest().authenticated();
+		// http.authorizeRequests().antMatchers("/auth/**").permitAll().anyRequest().authenticated();
 
 	}
 

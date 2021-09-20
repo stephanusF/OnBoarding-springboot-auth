@@ -36,6 +36,7 @@ public class JwtTokenUtil {
 		Claims claim = Jwts.claims();
 		claim.put("fullname", user.getFullname());
         claim.put("username", user.getUsername());
+		claim.put("roles", user.getAuthorities().stream().map(x -> x.getAuthority()).collect(Collectors.toList()));
 
 		return Jwts.builder()
 				.setClaims(claim)
@@ -43,7 +44,7 @@ public class JwtTokenUtil {
 				.setIssuer(jwtIssuer)
 				.setIssuedAt(new Date())
 				.setExpiration(new Date(System.currentTimeMillis() + 1 * 24 * 60 * 60 * 1000))
-				.signWith(SignatureAlgorithm.RS256, "testing-onboard-auth")
+				.signWith(SignatureAlgorithm.RS256, getKey())
 				.compact();
 	}
 
@@ -81,18 +82,18 @@ public class JwtTokenUtil {
 	}
 	
 	private Jws<Claims> parseToken(String token) {
-		return Jwts.parser().setSigningKey("testing-onboard-auth").parseClaimsJws(token);
+		return Jwts.parser().setSigningKey(getKey()).parseClaimsJws(token);
 	}
 	
-	// private Key getKey() {
-	// 	try {
-	// 		File file = new ClassPathResource("private.der").getFile();
-	// 		Key privatekey = KeyReader.readPrivateKey(file);
-	// 		return privatekey;
-	// 	} catch (Exception e) {
-	// 		e.printStackTrace();
-	// 	}
-	// 	return null;
-	// }
+	private Key getKey() {
+		try {
+			File file = new ClassPathResource("private.der").getFile();
+			Key privatekey = KeyReader.readPrivateKey(file);
+			return privatekey;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 }
