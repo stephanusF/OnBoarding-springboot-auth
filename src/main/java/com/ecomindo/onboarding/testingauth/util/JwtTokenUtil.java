@@ -5,7 +5,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.stream.Collectors;
 
-import com.ecomindo.onboarding.testingauth.model.User;
+import com.ecomindo.onboarding.testingauth.dto.CustomUserDTO;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,9 +32,8 @@ public class JwtTokenUtil {
 	// @Autowired
 	// private Logger logger;	
 	
-	public String generateAccessToken(User user) throws Exception {
+	public String generateAccessToken(CustomUserDTO user) throws Exception {
 		Claims claim = Jwts.claims();
-		claim.put("role", user.getRole());
 		claim.put("fullname", user.getFullname());
         claim.put("username", user.getUsername());
 
@@ -69,19 +68,14 @@ public class JwtTokenUtil {
 			return true;
 		} catch (SignatureException ex) {
             System.out.println("Invalid JWT signature - "+ ex.getMessage());
-			// logger.error("Invalid JWT signature - {}", ex.getMessage());
 		} catch (MalformedJwtException ex) {
             System.out.println("Invalid JWT token - "+ ex.getMessage());
-			// logger.error("Invalid JWT token - {}", ex.getMessage());
 		} catch (ExpiredJwtException ex) {
             System.out.println("Expired JWT token - "+ ex.getMessage());
-			// logger.error("Expired JWT token - {}", ex.getMessage());
 		} catch (UnsupportedJwtException ex) {
             System.out.println("Unsupported JWT token - "+ ex.getMessage());
-			// logger.error("Unsupported JWT token - {}", ex.getMessage());
 		} catch (IllegalArgumentException ex) {
             System.out.println("JWT claims string is empty - "+ ex.getMessage());
-			// logger.error("JWT claims string is empty - {}", ex.getMessage());
 		}
 		return false;
 	}
